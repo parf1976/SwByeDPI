@@ -1,0 +1,21 @@
+name: Build SwByeDPI
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build the App
+        run: |
+          xcodebuild clean archive -project SwByeDPI.xcodeproj -scheme SwByeDPI -configuration Release -archivePath SwByeDPI.xcarchive CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      - name: Package into IPA
+        run: |
+          mkdir -p Payload
+          mv SwByeDPI.xcarchive/Products/Applications/*.app Payload/
+          zip -r SwByeDPI.ipa Payload
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SwByeDPI-IPA
+          path: SwByeDPI.ipa
